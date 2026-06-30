@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "serve -l 5000",
-    "build": "echo 'Sem build necessario para clone estatico'",
+    "build": "mkdir -p dist && cp -r assets index.html VSL.mp4 dist/",
     "preview": "serve -l 5000"
   },
   "devDependencies": {
