@@ -1,0 +1,13 @@
+{
+  "name": "kit-exercicio-para-idosos",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "serve -l 5000",
+    "build": "echo 'Sem build necessario para clone estatico'",
+    "preview": "serve -l 5000"
+  },
+  "devDependencies": {
+    "serve": "^14.2.1"
+  }
+}
