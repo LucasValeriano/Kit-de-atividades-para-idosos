@@ -33,11 +33,14 @@
   
   
   
+  
   <!-- Script para iniciar o vídeo automaticamente ao rolar até ele com áudio máximo e ativação de som -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       let isUnmuted = false;
       let audioNotice = null;
+      let activeObservedVideo = null;
+      let observer = null;
 
       // Função para criar e exibir o aviso visual de vídeo mutado
       const showAudioNotice = (video) => {
@@ -87,25 +90,31 @@
       window.addEventListener('mousedown', enableAudio);
 
       function setupVideoAutoplay(video) {
-        console.log("Configurando o autoplay...");
+        if (activeObservedVideo === video) return; // Já está observando este elemento ativo
+        
+        // Se já havia outro vídeo sendo observado, cancela a observação anterior
+        if (activeObservedVideo && observer) {
+          observer.unobserve(activeObservedVideo);
+        }
+        
+        activeObservedVideo = video;
+        console.log("Configurando o autoplay para o elemento ativo:", video);
         video.volume = 1.0;
         
-        // Adiciona clique no próprio elemento de vídeo para liberar áudio
         video.addEventListener('play', () => {
-          // Se o usuário deu play manualmente, garante som
           if (video.muted) {
             enableAudio();
           }
         });
 
-        const observer = new IntersectionObserver((entries) => {
+        observer = new IntersectionObserver((entries) => {
           entries.forEach(entry => {
             if (entry.isIntersecting) {
-              console.log("Vídeo visível! Iniciando play...");
+              console.log("Vídeo visível! Iniciando autoplay...");
               
               if (isUnmuted) {
                 video.muted = false;
-                video.play().catch(err => console.log("Erro:", err));
+                video.play().catch(err => console.log("Erro ao tocar:", err));
               } else {
                 // Tenta dar play com áudio desmutado
                 video.muted = false;
@@ -124,6 +133,7 @@
                 });
               }
             } else {
+              console.log("Vídeo fora da tela. Pausando...");
               video.pause();
             }
           });
@@ -134,30 +144,26 @@
         observer.observe(video);
       }
 
-      // 1. Tentar encontrar o vídeo de imediato
-      const immediateVideo = document.getElementById('vslVideo') || document.querySelector('video');
-      if (immediateVideo) {
-        setupVideoAutoplay(immediateVideo);
-        return;
-      }
-
-      // 2. Se não encontrar de imediato (React ainda carregando), observa o DOM dinamicamente
-      const domObserver = new MutationObserver((mutations, obs) => {
+      // Função contínua para encontrar o vídeo ativo no DOM e configurar
+      const checkAndSetup = () => {
         const video = document.getElementById('vslVideo') || document.querySelector('video');
         if (video) {
           setupVideoAutoplay(video);
-          obs.disconnect();
         }
-      });
+      };
 
+      // Execução imediata
+      checkAndSetup();
+
+      // Monitora o DOM de forma contínua para o caso de o React remontar a div/video
+      const domObserver = new MutationObserver(() => {
+        checkAndSetup();
+      });
+      
       domObserver.observe(document.body, {
         childList: true,
         subtree: true
       });
-
-      setTimeout(() => {
-        domObserver.disconnect();
-      }, 20000);
     });
   </script>
 </body>
