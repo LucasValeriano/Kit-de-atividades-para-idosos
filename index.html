@@ -219,20 +219,39 @@
 </style>
 
 <script>
-  window.addEventListener('load', function() {
+  // ViewContent: dispara ao rolar até a seção de preços OU ao clicar no botão de âncora
+  var viewContentFired = false;
+  function fireViewContent() {
+    if (viewContentFired) return;
+    viewContentFired = true;
     if (typeof fbq !== 'undefined') {
       fbq('track', 'ViewContent', {
-        value: 20.00, currency: 'BRL',
         content_name: 'Kit +365 Atividades para Idosos',
         content_type: 'product'
       });
     }
+  }
+
+  // Dispara ao rolar e a seção #pricing entrar na tela
+  document.addEventListener('DOMContentLoaded', function() {
+    var pricingSection = document.getElementById('pricing');
+    if (pricingSection && 'IntersectionObserver' in window) {
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) { fireViewContent(); obs.disconnect(); }
+        });
+      }, { threshold: 0.15 });
+      obs.observe(pricingSection);
+    }
+
+    // Dispara também ao clicar no botão âncora "Quero meu kit agora"
+    var anchorBtn = document.querySelector('a[href="#pricing"]');
+    if (anchorBtn) {
+      anchorBtn.addEventListener('click', fireViewContent);
+    }
   });
 
   function abrirPopupUpsell() {
-    if (typeof fbq !== 'undefined') {
-      fbq('track', 'InitiateCheckout', { value: 10.00, currency: 'BRL', content_name: 'Kit Basico' });
-    }
     var p = document.getElementById('popup-upsell');
     if (p) { p.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
   }
