@@ -150,7 +150,7 @@
             }
           });
         }, {
-          threshold: 0.15
+          threshold: 0.05
         });
         
         observer.observe(video);
@@ -255,7 +255,7 @@
         entries.forEach(function(entry) {
           if (entry.isIntersecting) { fireViewContent(); obs.disconnect(); }
         });
-      }, { threshold: 0.15 });
+      }, { threshold: 0.05 });
       obs.observe(pricingSection);
     }
 
