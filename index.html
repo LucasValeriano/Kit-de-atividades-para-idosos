@@ -167,6 +167,26 @@
       const checkAndSetup = () => {
         const video = document.getElementById('vslVideo') || document.querySelector('video');
         if (video) {
+          const targetSrc = "https://raw.githubusercontent.com/LucasValeriano/Kit-de-atividades-para-idosos/gh-pages/NOVA%20VSL%201.mp4";
+          // Se o src estiver apontando para a antiga VSL.mp4, força a nova!
+          if (video.src && !video.src.includes("NOVA%20VSL%201.mp4") && !video.src.includes("NOVA VSL 1.mp4")) {
+            console.log("Substituindo vídeo antigo pelo novo:", targetSrc);
+            video.src = targetSrc;
+            const source = video.querySelector('source');
+            if (source) {
+              source.src = targetSrc;
+            }
+            video.load();
+          }
+          
+          // Garante que o autoplay não é bloqueado (começa mutado)
+          if (!video.muted && !isUnmuted) {
+            video.muted = true;
+            video.setAttribute('muted', '');
+          }
+          video.setAttribute('preload', 'auto');
+          video.setAttribute('playsinline', '');
+          
           setupVideoAutoplay(video);
         }
       };
