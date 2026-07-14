@@ -130,30 +130,23 @@
               console.log("Vídeo visível! Iniciando autoplay...");
               video.volume = 1.0;
               
-              if (isUnmuted) {
-                video.muted = false;
-                video.play().then(() => {
-                  observer.unobserve(video);
-                }).catch(err => console.log("Erro ao tocar:", err));
-              } else {
-                // Tenta dar play com áudio desmutado
-                video.muted = false;
-                video.play().then(() => {
-                  console.log("Autoplay com som permitido!");
-                  isUnmuted = true;
-                  observer.unobserve(video);
-                }).catch(err => {
-                  console.log("Autoplay com som bloqueado pelo navegador. Iniciando mutado e mostrando aviso...");
-                  // Inicia mutado (Autoplay visual)
-                  video.muted = true;
-                  video.play().then(() => {
-                    showAudioNotice(video);
-                    observer.unobserve(video);
-                  }).catch(err2 => {
-                    console.log("Autoplay mutado falhou:", err2);
-                  });
-                });
-              }
+              // Sempre inicia mutado para garantir autoplay sem bloqueio do navegador
+              video.muted = true;
+              video.play().then(() => {
+                console.log("Autoplay mutado iniciado com sucesso!");
+                observer.unobserve(video);
+                
+                // Se o som já foi desbloqueado por interação anterior, ativa o som
+                if (isUnmuted) {
+                  video.muted = false;
+                  video.volume = 1.0;
+                  console.log("Som ativado automaticamente via interação anterior.");
+                } else {
+                  showAudioNotice(video);
+                }
+              }).catch(err => {
+                console.log("Autoplay mutado falhou:", err);
+              });
             }
           });
         }, {
