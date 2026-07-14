@@ -4,4 +4,4 @@ dist/
 .env
 original_site/
 *.mp4
-!VSL.mp4
+!NOVA VSL.mp4
