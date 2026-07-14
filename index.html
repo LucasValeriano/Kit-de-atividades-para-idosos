@@ -298,6 +298,76 @@
     window.addEventListener("load", initFaqs);
     new MutationObserver(initFaqs).observe(document.body, { childList:true, subtree:true });
   })();
+
+  // Fallback Carousel nativo
+  (function() {
+    function initCarousel() {
+      var carousel = document.querySelector('[aria-roledescription="carousel"]');
+      if (!carousel) return;
+      var viewport = carousel.querySelector('.overflow-hidden');
+      var prevBtn = carousel.querySelector('.-left-4');
+      var nextBtn = carousel.querySelector('.-right-4');
+      if (!viewport || !prevBtn || !nextBtn) return;
+
+      viewport.style.overflowX = 'auto';
+      viewport.style.scrollBehavior = 'smooth';
+      viewport.style.webkitOverflowScrolling = 'touch';
+      
+      if (!document.getElementById('carousel-style')) {
+        var style = document.createElement('style');
+        style.id = 'carousel-style';
+        style.textContent = '[aria-roledescription="carousel"] .overflow-hidden::-webkit-scrollbar { display: none !important; } [aria-roledescription="carousel"] .overflow-hidden { -ms-overflow-style: none !important; scrollbar-width: none !important; }';
+        document.head.appendChild(style);
+      }
+
+      function updateButtons() {
+        var maxScroll = viewport.scrollWidth - viewport.clientWidth;
+        if (viewport.scrollLeft <= 10) {
+          prevBtn.setAttribute('disabled', 'true');
+          prevBtn.style.opacity = '0.5';
+          prevBtn.style.pointerEvents = 'none';
+        } else {
+          prevBtn.removeAttribute('disabled');
+          prevBtn.style.opacity = '1';
+          prevBtn.style.pointerEvents = 'auto';
+        }
+        if (viewport.scrollLeft >= maxScroll - 10) {
+          nextBtn.setAttribute('disabled', 'true');
+          nextBtn.style.opacity = '0.5';
+          nextBtn.style.pointerEvents = 'none';
+        } else {
+          nextBtn.removeAttribute('disabled');
+          nextBtn.style.opacity = '1';
+          nextBtn.style.pointerEvents = 'auto';
+        }
+      }
+
+      if (!viewport.dataset.carouselBound) {
+        viewport.dataset.carouselBound = "true";
+        viewport.addEventListener('scroll', updateButtons);
+        
+        prevBtn.addEventListener('click', function(e) {
+          e.preventDefault(); e.stopPropagation();
+          var slideWidth = viewport.clientWidth * (window.innerWidth < 640 ? 1.0 : 0.8);
+          viewport.scrollBy({ left: -slideWidth, behavior: 'smooth' });
+        });
+        
+        nextBtn.addEventListener('click', function(e) {
+          e.preventDefault(); e.stopPropagation();
+          var slideWidth = viewport.clientWidth * (window.innerWidth < 640 ? 1.0 : 0.8);
+          viewport.scrollBy({ left: slideWidth, behavior: 'smooth' });
+        });
+
+        window.addEventListener('resize', updateButtons);
+      }
+      setTimeout(updateButtons, 100);
+    }
+
+    initCarousel();
+    document.addEventListener("DOMContentLoaded", initCarousel);
+    window.addEventListener("load", initCarousel);
+    new MutationObserver(initCarousel).observe(document.body, { childList: true, subtree: true });
+  })();
 </script>
 </body>
  
